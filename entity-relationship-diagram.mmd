@@ -1,0 +1,47 @@
+erDiagram <!-- Carbon Intensity -->
+    REGION ||--o{ CARBON_INTENSITY : "has"
+    REGION {
+        integer region_id PK
+        string name
+        string postcode_prefix
+        string short_name
+        datetime created
+        datetime modified
+    }
+    
+    CARBON_INTENSITY {
+        integer id PK
+        datetime from_datetime
+        datetime to_datetime
+        integer actual
+        integer forecast
+        string index
+        integer region_id FK
+        string postcode_prefix
+        datetime created
+        datetime modified
+    }
+    
+    GENERATION_MIX {
+        integer id PK
+        datetime from_datetime
+        datetime to_datetime
+        json fuel_mix
+        datetime created
+        datetime modified
+    }
+    
+    CARBON_INTENSITY_STATS {
+        integer id PK
+        datetime from_datetime
+        datetime to_datetime
+        integer min_intensity
+        integer max_intensity
+        float average_intensity
+        integer block_hours
+        datetime created
+        datetime modified
+    }
+
+    CARBON_INTENSITY ||--o{ CARBON_INTENSITY_STATS : "aggregates"
+    CARBON_INTENSITY ||--o{ GENERATION_MIX : "corresponds_to"

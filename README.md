@@ -12,6 +12,7 @@ following the standard ofother LFG projects.
 ##### Poetry dependencies
 
 - [ ] Install [Poetry](https://python-poetry.org/docs/#installation)
+- [ ] Select Environment: `poetry env use <python path or alias>`
 - [ ] Install the project's dependencies: `poetry install`
 
 At this stage you have:
@@ -19,7 +20,8 @@ At this stage you have:
 - dependencies installed, managed via `pyproject.toml` and the `poetry` command
 - a virtual environment available, either through:
   - `poetry run python <args...>`
-  - `poetry shell`
+  - `poetry env activate` (`poetry shell` for poetry<=2.0.0)
+You may need to run `& <path to venv from above command>` to activate the virtual environment in PowerShell.
  
 ##### Install `pre-commit`
 
@@ -73,4 +75,37 @@ Run all tests.
 
 ```sh
 poetry run python manage.py test
+```
+
+
+### Project Layout
+
+```plaintext
+energy-dashboard-api/
+├── api/                          # Django project settings
+│   ├── settings.py
+│   ├── urls.py
+│   └── celery.py                   # For async tasks (TODO)
+├── apps/
+│   ├── core/                       # Shared utilities
+│   │   ├── utils/
+│   │   │   ├── data_cleaners.py
+│   │   │   └── api_clients.py
+│   │   ├── management/
+│   │   │   └── commands/          # Custom Django commands
+│   │   │       ├── fetch_national_grid_data.py
+│   │   │       ├── fetch_elexon_data.py
+│   │   │       └── scrape_ofgem.py
+│   ├── national_grid_eso/         # App for National Grid data
+│   │   ├── models.py
+│   │   ├── tasks.py               # Celery task for API (TODO)
+│   │   └── tests/
+│   │       ├── test_models.py
+│   │       ├── test_api_client.py
+│   ├── elexon/                    # Elexon market data app
+│   ├── carbon_intensity/          # Carbon API app
+│   └── weather/                   # Weather data app
+├── static/                         # CSS/JS for future frontend
+├── data/                           # Raw CSV/JSON backups and saved pages (TODO)
+└── requirements.txt
 ```

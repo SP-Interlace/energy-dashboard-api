@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "energy-dashboard-api"
+version = "0.1.0"
+description = ""
+authors = ["tea-tacks <194441018+tea-tacks@users.noreply.github.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<3.12"
+beautifulsoup4 = "4.13.3"
+dateparser = "1.2.1"
+Django = "5.1.7"
+google-api-python-client = "2.165.0"
+gspread = "6.2.0"
+openai = "1.68.2"
+pandas = "2.2.3"
+playwright = "1.50.0"
+protobuf = "6.30.0" # speedy serializer
+pydantic = "2.10.6"
+python-decouple = "3.8" # better dotenv
+python-dateutil = "2.9.0.post0"
+requests = "2.32.3"
+opentelemetry-instrumentation-django = "^0.51b0"
+coverage = "^7.7.1"
+tenacity = "^9.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.8.4"
+pre-commit = "^4.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
