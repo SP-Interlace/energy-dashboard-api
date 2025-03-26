@@ -24,6 +24,13 @@ requests = "2.32.3"
 opentelemetry-instrumentation-django = "^0.51b0"
 coverage = "^7.7.1"
 tenacity = "^9.0.0"
+bjoern = { version = "^3.2.2", optional = true }
+djangorestframework = "^3.15.2"
+drf-yasg = "^1.21.10"
+celery = "^5.4.0"
+flower = "^2.0.1"
+django-cors-headers = "^4.7.0"
+django-redis = "^5.4.0"
 
 
 [tool.poetry.group.dev.dependencies]

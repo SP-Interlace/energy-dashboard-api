@@ -6,6 +6,8 @@ from typing import Dict, Optional
 import json
 import logging
 
+from apps.core.utils.api_clients import CarbonIntensityService
+
 logger = logging.getLogger(__name__)
 
 # Cache configuration
@@ -18,7 +20,9 @@ class CarbonIntensityManager(models.Manager):
     def get_for_period(
         self, from_dt: datetime, to_dt: datetime, region_id: int = None
     ) -> models.QuerySet:
-        cache_key = f"carbon_intensity_{from_dt}_{to_dt}_{region_id}"
+        cache_key = f"carbon_intensity_{from_dt}_{to_dt}_{region_id}".replace(
+            " ", "_"
+        ).replace(":", "-")
         cached = cache.get(cache_key)
 
         if cached:
@@ -26,6 +30,24 @@ class CarbonIntensityManager(models.Manager):
             return cached
 
         qs = self.filter(from_datetime__gte=from_dt, to_datetime__lte=to_dt)
+
+        if not qs.exists():
+            # Trigger service directly if celery hasn't updated the data
+            service = CarbonIntensityService()
+            response = service.get_intensity_between(from_dt, to_dt)
+            if response and "data" in response:
+                for entry in response["data"]:
+                    intensity = entry.get("intensity", {})
+                    ci_data = CarbonIntensityData(
+                        from_datetime=entry["from"],
+                        to_datetime=entry["to"],
+                        actual=intensity.get("actual"),
+                        forecast=intensity.get("forecast"),
+                        index=intensity.get("index", "moderate"),
+                    )
+                    CarbonIntensity.from_dataclass(ci_data).save()
+
+            qs = self.filter(from_datetime__gte=from_dt, to_datetime__lte=to_dt)
 
         if region_id:
             qs = qs.filter(region_id=region_id)

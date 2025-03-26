@@ -3,7 +3,7 @@
 A Django Application and scraping scripts to support energy dashboard and infrastructure campaign frontends.
 
 Poetry, pre-commit and ruff are used to manage its dependencies and general development lifecycle,
-following the standard ofother LFG projects.
+following the standard of other LFG projects.
 
 ### Setup
 

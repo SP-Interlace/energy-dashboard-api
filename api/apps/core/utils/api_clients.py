@@ -39,11 +39,11 @@ class CarbonIntensityService(BaseService):
 
     def get_intensity_date(self, date):
         """Gets carbon intensity for specified date."""
-        return self._get(f"intensity/date/{date}")
+        return self._get(f"intensity/date/{date.isoformat()}")
 
     def get_intensity_date_period(self, date, period):
         """Gets carbon intensity for specified date and settlement period."""
-        return self._get(f"intensity/date/{date}/{period}")
+        return self._get(f"intensity/date/{date.isoformat()}/{period}")
 
     def get_intensity_factors(self):
         """Gets carbon intensity factors for fuel types."""
@@ -51,32 +51,36 @@ class CarbonIntensityService(BaseService):
 
     def get_intensity_from(self, from_time):
         """Gets carbon intensity for specified date."""
-        return self._get(f"intensity/{from_time}")
+        return self._get(f"intensity/{from_time.isoformat()}")
 
     def get_intensity_fw24h(self, from_time):
         """Gets carbon intensity for 24h after specified date."""
-        return self._get(f"intensity/{from_time}/fw24h")
+        return self._get(f"intensity/{from_time.isoformat()}/fw24h")
 
     def get_intensity_fw48h(self, from_time):
         """Gets carbon intensity for 48h after specified date."""
-        return self._get(f"intensity/{from_time}/fw48h")
+        return self._get(f"intensity/{from_time.isoformat()}/fw48h")
 
     def get_intensity_pt24h(self, from_time):
         """Gets carbon intensity for 24h before specified date."""
-        return self._get(f"intensity/{from_time}/pt24h")
+        return self._get(f"intensity/{from_time.isoformat()}/pt24h")
 
     def get_intensity_between(self, from_time, to_time):
         """Gets carbon intensity between specified datetimes"""
-        return self._get(f"intensity/{from_time}/{to_time}")
+        return self._get(f"intensity/{from_time.isoformat()}/{to_time.isoformat()}")
 
     # Statistics - National endpoints
     def get_statistics(self, from_time, to_time):
         """Gets carbon intensity statistics between specified datetimes."""
-        return self._get(f"intensity/stats/{from_time}/{to_time}")
+        return self._get(
+            f"intensity/stats/{from_time.isoformat()}/{to_time.isoformat()}"
+        )
 
     def get_statistics_block(self, from_time, to_time, block):
         """Gets carbon intensity statistics in blocks between specified datetimes."""
-        return self._get(f"intensity/stats/{from_time}/{to_time}/{block}")
+        return self._get(
+            f"intensity/stats/{from_time.isoformat()}/{to_time.isoformat()}/{block}"
+        )
 
     # Generation Mix - National (beta) endpoints
     def get_current_generation(self):
@@ -85,11 +89,11 @@ class CarbonIntensityService(BaseService):
 
     def get_generation_pt24h(self, from_time):
         """Gets generation mix for 24h before specified date."""
-        return self._get(f"generation/{from_time}/pt24h")
+        return self._get(f"generation/{from_time.isoformat()}/pt24h")
 
     def get_generation_range(self, from_time, to_time):
         """Gets generation mix between specified datetimes."""
-        return self._get(f"generation/{from_time}/{to_time}")
+        return self._get(f"generation/{from_time.isoformat()}/{to_time.isoformat()}")
 
     # Carbon Intensity - Regional (beta) endpoints
     def get_regional_current(self):
@@ -118,54 +122,68 @@ class CarbonIntensityService(BaseService):
 
     def get_regional_intensity_fw24h(self, from_time):
         """Gets carbon intensity for 24h after specified datetime for GB regions."""
-        return self._get(f"regional/intensity/{from_time}/fw24h")
+        return self._get(f"regional/intensity/{from_time.isoformat()}/fw24h")
 
     def get_regional_intensity_fw24h_postcode(self, from_time, postcode):
         """Gets carbon intensity for 24h after specified datetime for specified outward postcode."""
-        return self._get(f"regional/intensity/{from_time}/fw24h/postcode/{postcode}")
+        return self._get(
+            f"regional/intensity/{from_time.isoformat()}/fw24h/postcode/{postcode}"
+        )
 
     def get_regional_intensity_fw24h_regionid(self, from_time, regionid):
         """Gets carbon intensity for 24h after specified datetime for specified region."""
-        return self._get(f"regional/intensity/{from_time}/fw24h/regionid/{regionid}")
+        return self._get(
+            f"regional/intensity/{from_time.isoformat()}/fw24h/regionid/{regionid}"
+        )
 
     def get_regional_intensity_fw48h(self, from_time):
         """Gets carbon intensity for 48h after specified datetime for GB regions."""
-        return self._get(f"regional/intensity/{from_time}/fw48h")
+        return self._get(f"regional/intensity/{from_time.isoformat()}/fw48h")
 
     def get_regional_intensity_fw48h_postcode(self, from_time, postcode):
         """Gets carbon intensity for 48h after specified datetime for specified outward postcode."""
-        return self._get(f"regional/intensity/{from_time}/fw48h/postcode/{postcode}")
+        return self._get(
+            f"regional/intensity/{from_time.isoformat()}/fw48h/postcode/{postcode}"
+        )
 
     def get_regional_intensity_fw48h_regionid(self, from_time, regionid):
         """Gets carbon intensity for 48h after specified datetime for specified region."""
-        return self._get(f"regional/intensity/{from_time}/fw48h/regionid/{regionid}")
+        return self._get(
+            f"regional/intensity/{from_time.isoformat()}/fw48h/regionid/{regionid}"
+        )
 
     def get_regional_intensity_pt24h(self, from_time):
         """Gets carbon intensity for 24h before specified datetime for GB regions."""
-        return self._get(f"regional/intensity/{from_time}/pt24h")
+        return self._get(f"regional/intensity/{from_time.isoformat()}/pt24h")
 
     def get_regional_intensity_pt24h_postcode(self, from_time, postcode):
         """Gets carbon intensity for 24h before specified datetime for specified outward postcode."""
-        return self._get(f"regional/intensity/{from_time}/pt24h/postcode/{postcode}")
+        return self._get(
+            f"regional/intensity/{from_time.isoformat()}/pt24h/postcode/{postcode}"
+        )
 
     def get_regional_intensity_pt24h_regionid(self, from_time, regionid):
         """Gets carbon intensity for 24h before specified datetime for specified region."""
-        return self._get(f"regional/intensity/{from_time}/pt24h/regionid/{regionid}")
+        return self._get(
+            f"regional/intensity/{from_time.isoformat()}/pt24h/regionid/{regionid}"
+        )
 
     def get_regional_intensity_range(self, from_time, to_time):
         """Gets carbon intensity between specified datetimes for GB regions."""
-        return self._get(f"regional/intensity/{from_time}/{to_time}")
+        return self._get(
+            f"regional/intensity/{from_time.isoformat()}/{to_time.isoformat()}"
+        )
 
     def get_regional_intensity_range_postcode(self, from_time, to_time, postcode):
         """Gets carbon intensity between specified datetimes for specified outward postcode."""
         return self._get(
-            f"regional/intensity/{from_time}/{to_time}/postcode/{postcode}"
+            f"regional/intensity/{from_time.isoformat()}/{to_time.isoformat()}/postcode/{postcode}"
         )
 
     def get_regional_intensity_range_regionid(self, from_time, to_time, regionid):
         """Gets carbon intensity between specified datetimes for specified region."""
         return self._get(
-            f"regional/intensity/{from_time}/{to_time}/regionid/{regionid}"
+            f"regional/intensity/{from_time.isoformat()}/{to_time.isoformat()}/regionid/{regionid}"
         )
 
 

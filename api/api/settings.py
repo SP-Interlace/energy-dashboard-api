@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -19,13 +20,33 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = "django-insecure-t#k577@w4wu1%lwfq9@(+f(3y7ang)(xa(c5p5%_$-q!j#=o@3"
+DEVELOPMENT = str.lower(os.environ.get("APP_DEVELOPMENT", "False")) == "true"
+DEBUG = DEVELOPMENT or str.lower(os.environ.get("APP_DEBUG", "False")) == "true"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = []
+if DEVELOPMENT:
+    SECRET_KEY = "django-insecure-t#k577@w4wu1%lwfq9@(+f(3y7ang)(xa(c5p5%_$-q!j#=o@3"
+else:
+    with open(os.environ["APP_SECRET_FILE"], "r") as f:
+        SECRET_KEY = f.read()
+
+CORS_ALLOW_CREDENTIALS = True
+
+if DEVELOPMENT:
+    ALLOWED_HOSTS = ["*"]
+    CORS_ALLOW_ALL_ORIGINS = True
+    CSRF_TRUSTED_ORIGINS = [
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ]  # React dev server
+else:
+    ALLOWED_HOSTS = os.environ.get("APP_HOST_NAMES").split(" ")
+    CORS_ALLOWED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
+    CSRF_TRUSTED_ORIGINS = [*CORS_ALLOWED_ORIGINS, "http://localhost:8000"]
 
 
 # Application definition
@@ -37,6 +58,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "drf_yasg",
+    "corsheaders",
     "apps.core",
     "apps.carbon_intensity",
     "apps.national_grid_eso",
@@ -45,6 +69,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -126,3 +151,46 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# settings.py additions
+# CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# CELERY_TIMEZONE = 'UTC'
+# CELERY_BEAT_SCHEDULE = {
+#     'update-intensity-every-30min': {
+#         'task': 'carbon_intensity.tasks.update_intensity_data',
+#         'schedule': 1800,
+#     },
+#     'update-generation-mix-hourly': {
+#         'task': 'carbon_intensity.tasks.update_generation_mix',
+#         'schedule': 3600,
+#     },
+# }
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': 'redis://localhost:6379/1',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#         }
+#     }
+# }
+
+REST_FRAMEWORK = {
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {"anon": "100/hour", "user": "1000/hour"},
+    "DEFAULT_VERSIONING_CLASS": "rest_framework.versioning.NamespaceVersioning",
+}
+
+
+SWAGGER_SETTINGS = {"DEFAULT_INFO": "api.urls.api_info"}
+
+
+# API KEYS
+
+BMRS_API_KEY = os.environ.get("BMRS_API_KEY", None)

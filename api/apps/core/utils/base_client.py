@@ -73,17 +73,24 @@ class BaseService:
         self.logger = logging.getLogger(logger_name)
         self.session = requests.Session()
 
-    def _get_retry_policy(self):
+    @staticmethod
+    def _get_retry_policy(
+        retry_attempts: int = DEFAULT_RETRY_ATTEMPTS, before_sleep=None
+    ):
         """Override this to customize retry policy for specific services"""
         return retry(
-            stop=stop_after_attempt(self.retry_attempts),
+            stop=stop_after_attempt(retry_attempts),
             wait=wait_exponential(multiplier=1, min=2, max=10),
             retry=(
                 retry_if_exception_type((requests.Timeout, requests.ConnectionError))
                 | retry_if_exception_type(ServiceUnavailableError)
             ),
-            before_sleep=self._log_retry_attempt,
+            before_sleep=before_sleep,
         )
+
+    def _get_retry_attempts(self) -> int:
+        """Override to set service-specific retry attempts"""
+        return self.retry_attempts
 
     def _log_retry_attempt(self, retry_state: RetryCallState):
         """Log retry attempts with service-specific context"""
@@ -120,7 +127,7 @@ class BaseService:
             self.logger.error(f"Server error: {error_msg}")
             raise ServiceUnavailableError(error_msg)
 
-    @_get_retry_policy()
+    @_get_retry_policy(_get_retry_attempts, before_sleep=_log_retry_attempt)
     def _make_request(
         self,
         method: str,
@@ -157,6 +164,8 @@ class BaseService:
             if not response.ok:
                 self._handle_error_response(response)
 
+            if response_model is None:
+                return response.json()
             return self._validate_response(response.json(), response_model)
 
         except (requests.Timeout, requests.ConnectionError) as e:
@@ -172,11 +181,17 @@ class BaseService:
             raise BaseAPIError("Unexpected API error occurred") from e
 
     def _get(
-        self, endpoint: str, response_model: Type[T], params: Optional[Dict] = None
+        self,
+        endpoint: str,
+        response_model: Optional[Type[T]] = None,
+        params: Optional[Dict] = None,
     ) -> T:
         return self._make_request("GET", endpoint, response_model, params=params)
 
     def _post(
-        self, endpoint: str, response_model: Type[T], data: Optional[Dict] = None
+        self,
+        endpoint: str,
+        response_model: Optional[Type[T]] = None,
+        data: Optional[Dict] = None,
     ) -> T:
         return self._make_request("POST", endpoint, response_model, data=data)
