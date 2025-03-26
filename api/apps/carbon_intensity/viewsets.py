@@ -72,7 +72,8 @@ class CarbonIntensityViewSet(viewsets.ReadOnlyModelViewSet):
         """Gets current regional intensity."""
         service = CarbonIntensityService()
         response = service.get_regional_current()
-        return self._handle_intensity_response(response)
+        print(response)
+        return Response(response, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
     def today(self, request):
