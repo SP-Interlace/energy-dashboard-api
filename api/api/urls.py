@@ -29,11 +29,12 @@ from rest_framework import permissions
 from rest_framework.routers import DefaultRouter
 
 from apps.carbon_intensity.urls import router as carbon_intensity_router
-
+from apps.octopus.urls import router as octopus_router
 
 router = DefaultRouter()
 
 router.registry.extend(carbon_intensity_router.registry)
+router.registry.extend(octopus_router.registry)
 
 
 api_info = openapi.Info(

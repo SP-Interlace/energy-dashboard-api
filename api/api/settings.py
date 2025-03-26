@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "apps.carbon_intensity",
     "apps.national_grid_eso",
     "apps.elexon",
+    "apps.octopus",
     "apps.core.utils",
 ]
 

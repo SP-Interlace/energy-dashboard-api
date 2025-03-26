@@ -18,7 +18,7 @@ logging.basicConfig(
 T = TypeVar("T", bound=BaseModel)
 
 
-class BaseAPIError(Exception):
+class ExternalAPIError(Exception):
     """Base exception for all API services"""
 
     def __init__(self, message: str, original_exception: Optional[Exception] = None):
@@ -26,19 +26,19 @@ class BaseAPIError(Exception):
         self.original_exception = original_exception
 
 
-class RateLimitError(BaseAPIError):
+class RateLimitError(ExternalAPIError):
     """Base class for rate limiting errors"""
 
 
-class NetworkError(BaseAPIError):
+class NetworkError(ExternalAPIError):
     """Base class for network-related errors"""
 
 
-class ServiceUnavailableError(BaseAPIError):
+class ServiceUnavailableError(ExternalAPIError):
     """Base class for service unavailable errors"""
 
 
-class InvalidResponseError(BaseAPIError):
+class InvalidResponseError(ExternalAPIError):
     """Base class for response validation errors"""
 
 
@@ -121,7 +121,7 @@ class BaseService:
 
         if 400 <= response.status_code < 500:
             self.logger.error(f"Client error: {error_msg}")
-            raise BaseAPIError(error_msg)
+            raise ExternalAPIError(error_msg)
 
         if response.status_code >= 500:
             self.logger.error(f"Server error: {error_msg}")
@@ -170,15 +170,15 @@ class BaseService:
 
         except (requests.Timeout, requests.ConnectionError) as e:
             self.logger.error(f"Network error: {str(e)}")
-            raise NetworkError("Network connection failed") from e
+            raise NetworkError(f"Network connection failed {str(e)}") from e
 
         except ValidationError as e:
             self.logger.error(f"Validation error: {str(e)}")
-            raise InvalidResponseError("Response validation failed") from e
+            raise InvalidResponseError(f"Response validation failed {str(e)}") from e
 
         except Exception as e:
             self.logger.error(f"Unexpected error: {str(e)}")
-            raise BaseAPIError("Unexpected API error occurred") from e
+            raise ExternalAPIError(f"Unexpected API error occurred: {str(e)}") from e
 
     def _get(
         self,

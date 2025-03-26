@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.conf import settings
 import logging
 import requests
@@ -11,7 +12,7 @@ from tenacity import (
 
 from apps.core.utils.base_client import (
     BaseService,
-    BaseAPIError,
+    ExternalAPIError,
     RateLimitError,
     NetworkError,
     ServiceUnavailableError,
@@ -188,7 +189,7 @@ class CarbonIntensityService(BaseService):
 
 
 class BMRSService(BaseService):
-    class BMRSAPIError(BaseAPIError):
+    class BMRSAPIError(ExternalAPIError):
         """BMRS-specific errors"""
 
     class BMRSRateLimitError(RateLimitError):
@@ -1581,3 +1582,50 @@ class BMRSService(BaseService):
             "format": format,
         }
         return self._get("/demand/outturn", params=params)
+
+
+class OctopusService(BaseService):
+    def __init__(self):
+        super().__init__(base_url="https://api.octopus.energy/v1/")
+
+    def get_grid_supply_points(self, format="json"):
+        params = {
+            "format": format,
+        }
+        return self._get("industry/grid-supply-points", params=params)
+
+    def get_grid_supply_point_by_postcode(self, format="json", postcode="SW1A1AA"):
+        params = {
+            "format": format,
+            "postcode": postcode,
+        }
+        response = self._get("industry/grid-supply-points", params=params)
+
+        return response["results"][0]["group_id"].replace("_", "")  # "C"
+
+    def get_gsp_price(self, gsp, from_date, to_date, format="json"):
+        """TODO: Fix for 2025 data that always returns null - unsure if this is an Octopus issue"""
+        params = {
+            "format": format,
+        }
+        return self._get(
+            f"products/AGILE-FLEX-22-11-25/electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-{gsp}/standard-unit-rates/?period_from={from_date.isoformat()}Z&period_to={to_date.isoformat()}Z",
+            params=params,
+        )
+
+    def get_gsp_price_today(self, gsp, format="json"):
+        params = {
+            "format": format,
+        }
+        print(
+            "Date:",
+            datetime.today()
+            .replace(hour=0, minute=0, second=0, microsecond=0)
+            .isoformat(),
+            "date2:",
+            datetime.now().replace(second=0, microsecond=0).isoformat(),
+        )
+        return self._get(
+            f"products/AGILE-FLEX-22-11-25/electricity-tariffs/E-1R-AGILE-FLEX-22-11-25-{gsp}/standard-unit-rates/?period_from={datetime.today().replace(hour=0, minute=0, second=0, microsecond=0).isoformat()}Z&period_to={datetime.now().replace(second=0, microsecond=0).isoformat()}Z",
+            params=params,
+        )
