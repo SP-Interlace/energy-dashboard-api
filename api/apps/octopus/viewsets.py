@@ -73,6 +73,6 @@ class GSPPriceViewSet(viewsets.ViewSet):
 
         service = OctopusService()
         print("Okay all good up to here")
-        price_data = service.get_gsp_price_today(gsp)
+        price_data = service.get_gsp_price(gsp, from_date, to_date)
         serializer = GSPPriceSerializer(price_data.get("results", []), many=True)
         return Response(serializer.data)
