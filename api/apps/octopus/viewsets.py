@@ -47,6 +47,8 @@ class GSPPriceViewSet(viewsets.ViewSet):
         14: "P",
     }
 
+    inv_gsp_conversion_table = {v: k for k, v in gsp_conversion_table.items()}
+
     def list(self, request):
         from_date = request.query_params.get("from_date")
         to_date = request.query_params.get("to_date")
@@ -76,3 +78,34 @@ class GSPPriceViewSet(viewsets.ViewSet):
         price_data = service.get_gsp_price(gsp, from_date, to_date)
         serializer = GSPPriceSerializer(price_data.get("results", []), many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=["get"], url_path="aggregated-prices")
+    def aggregated_prices(self, request):
+        from_date = request.query_params.get("from_date")
+        to_date = request.query_params.get("to_date")
+
+        from_date = datetime.strptime(from_date, "%Y-%m-%dT%H:%MZ").isoformat()
+        to_date = datetime.strptime(to_date, "%Y-%m-%dT%H:%MZ").isoformat()
+
+        # Validate dates
+        try:
+            from_date = datetime.fromisoformat(from_date) if from_date else None
+            to_date = datetime.fromisoformat(to_date) if to_date else None
+        except ValueError:
+            return Response(
+                {
+                    "error": "Invalid date format. Use ISO format (e.g., 2024-05-30T00:00:00Z)"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        service = OctopusService()
+
+        results = {}
+        for gsp in self.gsp_conversion_table.values():
+            results[self.inv_gsp_conversion_table[gsp]] = GSPPriceSerializer(
+                service.get_gsp_price(gsp, from_date, to_date).get("results", []),
+                many=True,
+            ).data
+
+        return Response(results)
