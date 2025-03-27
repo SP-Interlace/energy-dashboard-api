@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: energy-dashboard
+  name: backend
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: backend
+      - maxSkew: 1
+        topologyKey: node
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: backend
+      containers:
+      - name: backend
+        image: $BACKEND_IMAGE
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+        env:
+        - name: APP_SECRET
+          valueFrom:
+            secretKeyRef:
+              # Manually randomly generated to avoid leaking it.
+              name: backend
+              key: secret
+        - name: APP_DATABASE_HOST
+          valueFrom:
+            secretKeyRef:
+              name: database-app
+              key: host
+        - name: APP_DATABASE_PORT
+          valueFrom:
+            secretKeyRef:
+              name: database-app
+              key: port
+        - name: APP_DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              name: database-app
+              key: dbname
+        - name: APP_DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: database-app
+              key: user
+        - name: APP_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: database-app
+              key: password
+        readinessProbe:
+          httpGet:
+            port: 80
+            path: /health
+        resources:
+          requests:
+            cpu: 250m
+            memory: 128Mi
+          limits:
+            # CPython doesn't benefit from more than 1 CPU
+            cpu: 1000m
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
