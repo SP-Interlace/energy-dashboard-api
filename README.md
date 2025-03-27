@@ -62,6 +62,12 @@ Create a superuser.
 poetry run python manage.py createsuperuser
 ```
 
+Set APP_DEVELOPMENT environment variables.
+
+```sh
+export APP_DEVELOPMENT=True
+$env:APP_DEVELOPMENT = "True"
+```
 
 Run the server
 
