@@ -169,6 +169,9 @@ class GSPPriceViewSet(viewsets.ViewSet):
                     print(month_date, start_date, end_date)
                     filtered_prices.append(price)
             if filtered_prices:
-                filtered_data[region] = filtered_prices
+                print(region)
+                print(self.inv_gsp_conversion_table.keys())
+                print(self.inv_gsp_conversion_table[region])
+                filtered_data[self.inv_gsp_conversion_table[region]] = filtered_prices
         # Return the filtered data
         return Response(filtered_data)
