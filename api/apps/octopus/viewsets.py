@@ -5,6 +5,9 @@ from apps.core.utils.api_clients import OctopusService
 from .serializers import GridSupplyPointSerializer, GSPPriceSerializer
 from datetime import datetime
 
+import os
+import json
+
 
 class GridSupplyPointViewSet(viewsets.ViewSet):
     """
@@ -109,3 +112,63 @@ class GSPPriceViewSet(viewsets.ViewSet):
             ).data
 
         return Response(results)
+
+    @action(detail=False, methods=["get"], url_path="quarterly-prices")
+    def quarterly_prices_by_region(self, request):
+        quarter = request.query_params.get("quarter")
+        year = request.query_params.get("year")
+        if not quarter or not year:
+            return Response(
+                {"error": "Quarter and year are required parameters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            quarter = int(quarter)
+            year = int(year)
+        except ValueError:
+            return Response(
+                {"error": "Quarter and year must be integers."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if quarter < 1 or quarter > 4:
+            return Response(
+                {"error": "Quarter must be between 1 and 4."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Calculate the start and end dates for the quarter
+        start_month = (quarter - 1) * 3 + 1
+        end_month = start_month + 2
+        start_date = datetime(year, start_month, 1)
+        end_date = datetime(year, end_month, 1)
+
+        # Get data from api/data/octopus_prices
+        # get module path to avoid missing file error
+        module_path = os.path.dirname(__file__)
+        file_path = os.path.join(
+            module_path, "../../data/octopus_prices/energy_prices_gsp_quarters.json"
+        )
+        # Check if the file exists
+        print(file_path)
+        if not os.path.exists(file_path):
+            return Response(
+                {"error": "Data file not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        # Load the data from the JSON file
+        with open(file_path, "r") as f:
+            data = json.load(f)
+
+        # Filter the data for the specified quarter and year
+        filtered_data = {}
+        for region, prices in data.items():
+            filtered_prices = []
+            for month, price in prices.items():
+                month_date = datetime.strptime(month, "%Y-%m")
+                if start_date <= month_date <= end_date:
+                    print(month_date, start_date, end_date)
+                    filtered_prices.append(price)
+            if filtered_prices:
+                filtered_data[region] = filtered_prices
+        # Return the filtered data
+        return Response(filtered_data)

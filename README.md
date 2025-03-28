@@ -115,3 +115,11 @@ energy-dashboard-api/
 ├── data/                           # Raw CSV/JSON backups and saved pages (TODO)
 └── requirements.txt
 ```
+
+
+### Django Commands
+
+Fetch Energy Prices - Saved as energy_prices_gsp_X.json (one per each of 14 Grid Supply Points) and energy_prices_all_gsps.json
+```sh
+python manage.py fetch_octopus_energy_prices --output-dir path/to/your/directory
+```
