@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta
 from dataclasses import asdict
+import json
+import os
+from pathlib import Path
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -91,6 +94,42 @@ class CarbonIntensityViewSet(viewsets.ReadOnlyModelViewSet):
         service = CarbonIntensityService()
         response = service.get_intensity_date(parsed_date)
         return self._handle_intensity_response(response)
+
+    @action(detail=False, methods=["get"], url_path="quarterly-generationmix")
+    def quarterly(self, request):
+        """Gets quarterly generation mix."""
+        year = request.query_params.get("year")
+        quarter = request.query_params.get("quarter")
+        if not year or not quarter:
+            return Response(
+                {"error": "Year and quarter are required parameters."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        module_path = Path(__file__).resolve().parent.parent.parent
+        file_path = os.path.join(
+            module_path, "data\generationmix\monthly_generation_averages.json"
+        )
+        # Check if the file exists
+        if not os.path.exists(file_path):
+            return Response(
+                {"error": "Data file not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        # Load the data from the JSON file
+        with open(file_path, "r") as f:
+            data = json.load(f)
+
+        # Filter the data for the specified quarter and year
+        filtered_data = {}
+        for month, regions in data.items():
+            month_date = datetime.strptime(month, "%Y-%m")
+            if month_date.year == int(year) and (month_date.month - 1) // 3 + 1 == int(
+                quarter
+            ):
+                filtered_data[month] = regions
+
+        return Response(filtered_data)
 
     @action(
         detail=False,
