@@ -1,0 +1,9 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  namespace: energy-dashboard
+  name: database
+spec:
+  instances: 1
+  storage:
+    size: 16Gi
