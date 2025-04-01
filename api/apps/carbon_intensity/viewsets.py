@@ -108,7 +108,7 @@ class CarbonIntensityViewSet(viewsets.ReadOnlyModelViewSet):
 
         module_path = Path(__file__).resolve().parent.parent.parent
         file_path = os.path.join(
-            module_path, "data\generationmix\monthly_generation_averages.json"
+            module_path, "data/generationmix/monthly_generation_averages.json"
         )
         # Check if the file exists
         if not os.path.exists(file_path):
