@@ -2,7 +2,7 @@
 """26/03/2025 - This file is used to run the server using Bjoern."""
 
 from bjoern import run
-from api.api.wsgi import application
+from api.wsgi import application
 import os
 import sys
 

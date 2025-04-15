@@ -11,7 +11,7 @@ RUN apk add --no-cache --virtual .deps musl-dev libev-dev gcc \
     && apk del .deps \
     && apk add --no-cache libev
 
-COPY . .
+COPY api .
 
 EXPOSE 80
 
