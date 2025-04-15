@@ -11,8 +11,6 @@ metadata:
     alb.ingress.kubernetes.io/success-codes: '200'
     alb.ingress.kubernetes.io/wafv2-acl-arn: arn:aws:wafv2:eu-west-2:886436934500:regional/webacl/all/a4d92465-8b75-4997-9ca8-57cfd3d92922
     kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:eu-west-2:886436934500:certificate/b5d2f9fa-b9a4-404b-84b0-c4e6e102bfa5"
 spec:
   defaultBackend:
     service:
@@ -29,6 +27,7 @@ spec:
             name: backend
             port:
               number: 80
-  # tls:
-  # - hosts:
-  #   - energy.lookingforgrowth.uk (?)
+  tls:
+  - hosts:
+    - energy.lookingforgrowth.uk
+    - energy.lfgdata.uk
