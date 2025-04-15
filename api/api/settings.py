@@ -20,33 +20,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
+DEVELOPMENT = os.environ.get("APP_DEVELOPMENT", "false").lower() == "true"
 
-SECRET_KEY = "django-insecure-t#k577@w4wu1%lwfq9@(+f(3y7ang)(xa(c5p5%_$-q!j#=o@3"
-DEVELOPMENT = str.lower(os.environ.get("APP_DEVELOPMENT", "False")) == "true"
-DEBUG = DEVELOPMENT or str.lower(os.environ.get("APP_DEBUG", "False")) == "true"
-
-
+# SECURITY WARNING: keep the secret key used in production secret!
 if DEVELOPMENT:
-    SECRET_KEY = "django-insecure-t#k577@w4wu1%lwfq9@(+f(3y7ang)(xa(c5p5%_$-q!j#=o@3"
+    SECRET_KEY = "django-insecure-jd)wmqtrm3o(^pech(5&=ofdd8@5b)j-t=+gm9zhjz39b1j*5n"
 else:
-    with open(os.environ["APP_SECRET_FILE"], "r") as f:
-        SECRET_KEY = f.read()
+    SECRET_KEY = os.environ["APP_SECRET"]
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = DEVELOPMENT and os.environ.get("APP_DEBUG", "true").lower() != "false"
 
 CORS_ALLOW_CREDENTIALS = True
+CSRF_COOKIE_SECURE = not DEVELOPMENT
 
 if DEVELOPMENT:
     ALLOWED_HOSTS = ["*"]
-    CORS_ALLOW_ALL_ORIGINS = True
-    CSRF_TRUSTED_ORIGINS = [
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ]  # React dev server
+    CSRF_TRUSTED_ORIGINS = ["http://*"]
 else:
-    ALLOWED_HOSTS = os.environ.get("APP_HOST_NAMES").split(" ")
-    CORS_ALLOWED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
-    CSRF_TRUSTED_ORIGINS = [*CORS_ALLOWED_ORIGINS, "http://localhost:8000"]
+    ALLOWED_HOSTS = ["energy.lookingforgrowth.uk", "energy.lfgdata.uk"]
+    CSRF_TRUSTED_ORIGINS = ["https://energy.lookingforgrowth.uk", "https://energy.lfgdata.uk"]
 
 
 # Application definition
@@ -105,12 +98,25 @@ WSGI_APPLICATION = "api.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+if DEVELOPMENT:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "HOST": os.environ["APP_DATABASE_HOST"],
+            "PORT": os.environ.get("APP_DATABASE_PORT", ""),
+            "NAME": os.environ["APP_DATABASE_NAME"],
+            "USER": os.environ["APP_DATABASE_USER"],
+            "PASSWORD": os.environ["APP_DATABASE_PASSWORD"],
+            "CONN_MAX_AGE": 120,
+        }
+    }
 
 
 # Password validation
