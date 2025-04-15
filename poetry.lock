@@ -2378,4 +2378,4 @@ bjoern = ["bjoern"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.12"
-content-hash = "3e7368598d22031e08c21419e8a4c9664945b8a6e2a03dc7b3779a0568020cb0"
+content-hash = "ded05b106f60574de4c8f5e84536806097c2e931c3c5089dea6568ad04cf365d"
