@@ -40,7 +40,10 @@ if DEVELOPMENT:
     CORS_ALLOW_ALL_ORIGINS = True
 else:
     ALLOWED_HOSTS = ["energy.lookingforgrowth.uk", "energy.lfgdata.uk"]
-    CSRF_TRUSTED_ORIGINS = ["https://energy.lookingforgrowth.uk", "https://energy.lfgdata.uk"]
+    CSRF_TRUSTED_ORIGINS = [
+        "https://energy.lookingforgrowth.uk",
+        "https://energy.lfgdata.uk",
+    ]
 
 
 # Application definition
@@ -61,6 +64,7 @@ INSTALLED_APPS = [
     "apps.elexon",
     "apps.octopus",
     "apps.core.utils",
+    "apps.petition",
 ]
 
 MIDDLEWARE = [
