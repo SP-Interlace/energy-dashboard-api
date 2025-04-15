@@ -34,7 +34,7 @@ admin.site.site_header = _("Energy Dashboard Administration")
 admin.site.index_title = _("Control Center Home")
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("api/admin/", admin.site.urls),
     path("api/v1/", include(router.urls)),
     path("api/v1/", include("apps.petition.urls")),
     re_path(
