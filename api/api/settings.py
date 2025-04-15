@@ -37,6 +37,7 @@ CSRF_COOKIE_SECURE = not DEVELOPMENT
 if DEVELOPMENT:
     ALLOWED_HOSTS = ["*"]
     CSRF_TRUSTED_ORIGINS = ["http://*"]
+    CORS_ALLOW_ALL_ORIGINS = True
 else:
     ALLOWED_HOSTS = ["energy.lookingforgrowth.uk", "energy.lfgdata.uk"]
     CSRF_TRUSTED_ORIGINS = ["https://energy.lookingforgrowth.uk", "https://energy.lfgdata.uk"]
