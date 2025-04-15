@@ -37,6 +37,9 @@ django-redis = "^5.4.0"
 ruff = "^0.8.4"
 pre-commit = "^4.0.1"
 
+[tool.poetry.extras]
+bjoern = ["bjoern"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
