@@ -44,6 +44,11 @@ else:
         "https://energy.lookingforgrowth.uk",
         "https://energy.lfgdata.uk",
     ]
+    CORS_ALLOW_ALL_ORIGINS = [
+        "https://energy.lookingforgrowth.uk",
+        "https://energy.lfgdata.uk",
+        "https://delays.lookingforgrowth.uk/",
+    ]
 
 
 # Application definition
