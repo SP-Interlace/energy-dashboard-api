@@ -38,6 +38,11 @@ spec:
               # Manually randomly generated to avoid leaking it.
               name: backend
               key: secret
+	- name: BREVO_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: brevo-api-key
+              key: key
         - name: APP_DATABASE_HOST
           valueFrom:
             secretKeyRef:
